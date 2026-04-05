@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruta al Retiro — RichTech</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #0d1117;
+  --paper: #f7f4ef;
+  --gold: #c9a84c;
+  --gold-light: #f0dfa0;
+  --green: #1a6b4a;
+  --green-light: #d4eddf;
+  --red: #b5341a;
+  --red-light: #fdecea;
+  --blue: #1a4a8a;
+  --blue-light: #ddeaf9;
+  --muted: #7a756e;
+  --border: #e0d9cf;
+  --card-bg: #ffffff;
+}
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(201,168,76,0.07) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(26,107,74,0.06) 0%, transparent 50%);
+}
+
+/* ── Hero ── */
+.hero {
+  background: var(--ink);
+  color: #fff;
+  padding: 56px 40px 48px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 360px; height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-inner { max-width: 900px; margin: auto; position: relative; z-index: 1; }
+.hero-badge {
+  display: inline-block;
+  background: rgba(201,168,76,0.15);
+  border: 1px solid rgba(201,168,76,0.4);
+  color: var(--gold-light);
+  font-size: 0.7em; font-weight: 600;
+  letter-spacing: 0.13em; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 100px; margin-bottom: 18px;
+}
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.1; margin-bottom: 12px;
+}
+.hero h1 span { color: var(--gold-light); font-style: italic; }
+.hero p { font-size: 1em; color: rgba(255,255,255,0.55); max-width: 500px; line-height: 1.65; }
+
+/* ── Layout ── */
+.main { max-width: 900px; margin: 0 auto; padding: 40px 20px 60px; }
+
+.section-label {
+  font-size: 0.68em; font-weight: 600;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 16px; }
+
+/* ── Cards ── */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 20px 18px;
+  transition: box-shadow 0.2s;
+}
+.card:hover { box-shadow: 0 6px 22px rgba(13,17,23,0.07); }
+.card-icon { font-size: 1.4em; margin-bottom: 8px; display: block; }
+.card h3 { font-family: 'DM Serif Display', serif; font-size: 1rem; margin-bottom: 12px; }
+
+label {
+  display: block;
+  font-size: 0.72em; font-weight: 500;
+  color: var(--muted); letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 12px; margin-bottom: 5px;
+}
+label:first-of-type { margin-top: 0; }
+
+input[type="number"], input[type="text"] {
+  width: 100%; padding: 9px 12px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95em; font-weight: 500;
+  color: var(--ink); background: var(--paper);
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.14);
+  background: #fff;
+}
+
+/* ── Dynamic rows ── */
+.dyn-list { margin-top: 10px; }
+.dyn-row {
+  display: grid; gap: 8px; align-items: end;
+  margin-bottom: 8px;
+}
+.dyn-row.cols-2 { grid-template-columns: 1fr 1fr auto; }
+.dyn-row.cols-3 { grid-template-columns: 1fr 0.7fr 0.7fr auto; }
+.dyn-row label { margin-top: 0; }
+
+.btn-remove {
+  width: 30px; height: 30px;
+  border: 1px solid #e0d9cf; border-radius: 6px;
+  background: #fff; color: #b5341a;
+  font-size: 1em; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  align-self: end; transition: background 0.15s;
+  flex-shrink: 0;
+}
+.btn-remove:hover { background: var(--red-light); }
+
+.btn-add {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--paper); border: 1.5px dashed var(--border);
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: 0.8em; font-weight: 500;
+  padding: 7px 14px; border-radius: 8px;
+  cursor: pointer; margin-top: 4px;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-add:hover { border-color: var(--gold); color: var(--ink); }
+
+.warning-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #fff8ec; border: 1px solid #f5d98a;
+  color: #8a5a00; font-size: 0.74em; font-weight: 500;
+  padding: 5px 11px; border-radius: 100px; margin-top: 10px;
+}
+
+/* ── CTA ── */
+.btn-calcular {
+  width: 100%; padding: 17px 24px;
+  background: var(--ink); color: #fff;
+  border: none; border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1em; font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  cursor: pointer; margin-top: 20px;
+  position: relative; overflow: hidden;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+.btn-calcular::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(201,168,76,0.2) 0%, transparent 60%);
+  opacity: 0; transition: opacity 0.2s;
+}
+.btn-calcular:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(13,17,23,0.22); }
+.btn-calcular:hover::after { opacity: 1; }
+.btn-calcular:active { transform: translateY(0); }
+
+/* ── Results ── */
+#res_container { display: none; margin-top: 50px; animation: fadeUp 0.5s ease both; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px 14px; text-align: center;
+}
+.stat-lbl { font-size: 0.67em; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.stat-val { font-family: 'DM Serif Display', serif; font-size: 1.35rem; color: var(--ink); line-height: 1; }
+.stat-card.dark { background: var(--ink); border-color: var(--ink); }
+.stat-card.dark .stat-lbl { color: rgba(255,255,255,0.45); }
+.stat-card.dark .stat-val { color: var(--gold-light); }
+.stat-card.s-green { background: var(--green-light); border-color: rgba(26,107,74,0.2); }
+.stat-card.s-green .stat-val { color: var(--green); }
+.stat-card.s-red { background: var(--red-light); border-color: rgba(181,52,26,0.15); }
+.stat-card.s-red .stat-val { color: var(--red); }
+
+.proj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.proj-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 13px; padding: 20px 18px;
+}
+.proj-card h4 { font-family: 'DM Serif Display', serif; font-size: 0.95rem; margin-bottom: 6px; }
+.proj-card .big { font-family: 'DM Serif Display', serif; font-size: 1.7rem; color: var(--green); margin: 6px 0 2px; }
+.proj-card .big.blue { color: var(--blue); }
+.proj-card .big.muted { color: var(--muted); font-size: 1.3rem; }
+.proj-card .sub { font-size: 0.75em; color: var(--muted); }
+
+.chart-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 14px; padding: 26px 22px; margin-bottom: 20px;
+}
+.chart-card h3 { font-family: 'DM Serif Display', serif; font-size: 1.1rem; margin-bottom: 4px; }
+.chart-card p { font-size: 0.8em; color: var(--muted); margin-bottom: 18px; }
+
+/* ── Quote card ── */
+.quote-card {
+  background: var(--ink); border-radius: 14px;
+  padding: 28px 28px 22px; margin-bottom: 20px;
+  position: relative; overflow: hidden;
+}
+.quote-card::before {
+  content: '"';
+  position: absolute; top: -10px; left: 16px;
+  font-family: 'DM Serif Display', serif;
+  font-size: 8rem; color: rgba(201,168,76,0.12);
+  line-height: 1; pointer-events: none;
+}
+.quote-text {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.05rem, 2.5vw, 1.3rem);
+  color: #fff; line-height: 1.5;
+  position: relative; z-index: 1;
+  margin-bottom: 10px;
+}
+.quote-author { font-size: 0.78em; color: var(--gold-light); letter-spacing: 0.06em; }
+
+/* ── Footer ── */
+.site-footer {
+  background: var(--ink); color: rgba(255,255,255,0.45);
+  text-align: center; padding: 28px 20px;
+  font-size: 0.78em; letter-spacing: 0.04em;
+}
+.footer-brand {
+  color: var(--gold-light);
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.15em; display: block; margin-bottom: 6px;
+}
+.footer-link {
+  color: rgba(255,255,255,0.55); text-decoration: none;
+  border-bottom: 1px solid rgba(201,168,76,0.35);
+  padding-bottom: 1px; transition: color 0.2s;
+}
+.footer-link:hover { color: var(--gold-light); }
+
+@media (max-width: 660px) {
+  .hero { padding: 36px 18px 30px; }
+  .grid-2, .proj-grid { grid-template-columns: 1fr; }
+  .stat-row { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .dyn-row.cols-3 { grid-template-columns: 1fr 0.8fr auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="hero-badge">Planificación financiera</span>
+    <h1>Tu ruta hacia la<br><span>libertad</span> financiera</h1>
+    <p>Ingresa todos tus activos, deudas, flujos e inversiones para obtener una proyección completa y personalizada.</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ═══ ACTIVOS ═══ -->
+  <div class="section-label">Activos</div>
+  <div class="grid-2" style="margin-bottom:12px;">
+
+    <div class="card">
+      <span class="card-icon">🏦</span>
+      <h3>Efectivo e inversión inicial</h3>
+      <label>Efectivo total en bancos (USD)</label>
+      <input type="number" id="activos" placeholder="Agrega el efectivo en bancos">
+      <label>Capital inicial para bolsa</label>
+      <input type="number" id="inv_inicial" placeholder="Agrega el capital inicial para bolsa">
+    </div>
+
+    <div class="card">
+      <span class="card-icon">🏠</span>
+      <h3>Propiedades</h3>
+      <div class="dyn-list" id="list-propiedades"></div>
+      <button class="btn-add" onclick="addRow('list-propiedades','prop')">+ Agregar propiedad</button>
+    </div>
+
+  </div>
+
+  <div class="grid-2" style="margin-bottom:28px;">
+    <div class="card">
+      <span class="card-icon">💼</span>
+      <h3>Negocios propios</h3>
+      <div class="dyn-list" id="list-negocios"></div>
+      <button class="btn-add" onclick="addRow('list-negocios','neg')">+ Agregar negocio</button>
+    </div>
+
+    <div class="card" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f7f4ef,#fff);">
+      <div style="text-align:center;color:var(--muted);">
+        <div style="font-size:2em;margin-bottom:8px;">📊</div>
+        <div style="font-size:0.82em;line-height:1.5;">El total de tus activos<br>se calcula automáticamente<br>al presionar <strong>Calcular</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DEUDAS ═══ -->
+  <div class="section-label">Deudas</div>
+  <div class="card" style="margin-bottom:28px;">
+    <span class="card-icon">💳</span>
+    <h3>Todas mis deudas</h3>
+    <div class="dyn-list" id="list-deudas"></div>
+    <button class="btn-add" onclick="addRow('list-deudas','deuda')">+ Agregar deuda</button>
+    <div class="warning-pill">⚠️ Si el interés de alguna deuda es &gt;7%, conviene pagarla antes de invertir</div>
+  </div>
+
+  <!-- ═══ FLUJO MENSUAL ═══ -->
+  <div class="section-label">Flujo mensual</div>
+  <div class="grid-2" style="margin-bottom:28px;">
+
+    <div class="card">
+      <span class="card-icon">💵</span>
+      <h3>Ingresos mensuales</h3>
+      <label>Salario neto mensual</label>
+      <input type="number" id="salario" placeholder="Agrega tu salario neto mensual">
+      <div class="dyn-list" id="list-otros-ingresos"></div>
+      <button class="btn-add" onclick="addRow('list-otros-ingresos','ingreso')">+ Otro ingreso (negocio, renta…)</button>
+    </div>
+
+    <div class="card">
+      <span class="card-icon">🧾</span>
+      <h3>Gastos mensuales</h3>
+      <label>Gastos totales (renta, comida, servicios…)</label>
+      <input type="number" id="gastos" placeholder="Agrega tus gastos totales del mes">
+    </div>
+
+  </div>
+
+  <!-- ═══ ESTRATEGIA ═══ -->
+  <div class="section-label">Estrategia de inversión</div>
+  <div class="grid-2" style="margin-bottom:28px;">
+
+    <div class="card">
+      <span class="card-icon">📈</span>
+      <h3>Bolsa de valores</h3>
+      <label>Aportación mensual (USD)</label>
+      <input type="number" id="inv_mensual" placeholder="Agrega tu aportación mensual a bolsa">
+      <label>Retorno anual esperado (%)</label>
+      <input type="number" id="rendimiento" placeholder="Agrega el retorno anual esperado (%)">
+    </div>
+
+    <div class="card">
+      <span class="card-icon">🏛️</span>
+      <h3>CDs / Cuentas de alto rendimiento</h3>
+      <div class="dyn-list" id="list-cds"></div>
+      <button class="btn-add" onclick="addRow('list-cds','cd')">+ Agregar CD / cuenta</button>
+    </div>
+
+  </div>
+
+  <button class="btn-calcular" onclick="calcular()">→ Calcular mi panorama financiero completo</button>
+
+  <!-- ═══ RESULTADOS ═══ -->
+  <div id="res_container">
+
+    <div class="section-label" style="margin-top:12px;">Resumen patrimonial hoy</div>
+    <div class="stat-row">
+      <div class="stat-card dark">
+        <div class="stat-lbl">Activos totales</div>
+        <div class="stat-val" id="s_activos_total">—</div>
+      </div>
+      <div class="stat-card s-red">
+        <div class="stat-lbl">Deudas totales</div>
+        <div class="stat-val" id="s_deudas_total">—</div>
+      </div>
+      <div class="stat-card s-green">
+        <div class="stat-lbl">Patrimonio neto</div>
+        <div class="stat-val" id="s_neto">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Flujo libre mensual</div>
+        <div class="stat-val" id="s_flujo">—</div>
+      </div>
+    </div>
+
+    <div class="stat-row" style="grid-template-columns:repeat(3,1fr);">
+      <div class="stat-card">
+        <div class="stat-lbl">Ingresos mensuales</div>
+        <div class="stat-val" id="s_ingresos">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Fondo emergencia ideal</div>
+        <div class="stat-val" id="s_emergencia">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Tasa deuda promedio</div>
+        <div class="stat-val" id="s_tasa_deuda">—</div>
+      </div>
+    </div>
+
+    <div class="section-label">Proyección a 22 años</div>
+    <div class="proj-grid">
+      <div class="proj-card">
+        <h4>📈 Bolsa de valores</h4>
+        <div class="sub" id="p_bolsa_desc">—</div>
+        <div class="big" id="p_bolsa">—</div>
+        <div class="sub">Valor proyectado al año 22</div>
+      </div>
+      <div class="proj-card">
+        <h4>🏛️ CDs / Alto rendimiento</h4>
+        <div class="sub" id="p_cd_desc">—</div>
+        <div class="big blue" id="p_cd">—</div>
+        <div class="sub">Valor proyectado al año 22</div>
+      </div>
+      <div class="proj-card">
+        <h4>💸 Efectivo sin invertir</h4>
+        <div class="sub">Pérdida de poder adquisitivo (−3% inflación)</div>
+        <div class="big muted" id="p_inflacion">—</div>
+        <div class="sub">Poder de compra real al año 22</div>
+      </div>
+      <div class="proj-card" style="background:var(--ink);border-color:var(--ink);">
+        <h4 style="color:rgba(255,255,255,0.6);">🏆 Total portafolio proyectado</h4>
+        <div class="sub" style="color:rgba(255,255,255,0.4);">Bolsa + CDs combinados</div>
+        <div class="big" style="color:var(--gold-light);font-size:2rem;" id="p_total">—</div>
+        <div class="sub" style="color:rgba(255,255,255,0.4);">Al año 22</div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Crecimiento proyectado año a año</h3>
+      <p>Comparativa entre bolsa, CDs y efectivo sin invertir</p>
+      <canvas id="myChart"></canvas>
+    </div>
+
+    <!-- Frase aleatoria -->
+    <div class="quote-card" id="quote-card">
+      <div class="quote-text" id="quote-text">—</div>
+      <div class="quote-author" id="quote-author">—</div>
+    </div>
+
+  </div><!-- /res_container -->
+
+</div><!-- /main -->
+
+<footer class="site-footer">
+  <span class="footer-brand">RichTech</span>
+  © 2026 <a href="https://www.richardtaleno.com/newsletter-taleno" target="_blank" class="footer-link">www.richardtaleno.com/newsletter-taleno</a> — Todos los derechos reservados.
+</footer>
+
+<script>
+/* ═══════════════════════════════════════
+   DYNAMIC ROWS
+═══════════════════════════════════════ */
+const counters = {};
+
+function addRow(listId, type) {
+  counters[type] = (counters[type] || 0) + 1;
+  const id = type + counters[type];
+  const list = document.getElementById(listId);
+  const row = document.createElement('div');
+  row.className = 'dyn-row';
+  row.id = 'row-' + id;
+
+  const configs = {
+    prop: {
+      cls: 'cols-2',
+      html: `
+        <div>
+          <label>Nombre / descripción</label>
+          <input type="text" id="${id}_nombre" placeholder="Ej: Casa en Miami">
+        </div>
+        <div>
+          <label>Valor estimado (USD)</label>
+          <input type="number" id="${id}_valor" placeholder="Agrega el valor de la propiedad">
+        </div>`
+    },
+    neg: {
+      cls: 'cols-2',
+      html: `
+        <div>
+          <label>Nombre del negocio</label>
+          <input type="text" id="${id}_nombre" placeholder="Ej: Cafetería Central">
+        </div>
+        <div>
+          <label>Valor estimado (USD)</label>
+          <input type="number" id="${id}_valor" placeholder="Agrega el valor del negocio">
+        </div>`
+    },
+    deuda: {
+      cls: 'cols-3',
+      html: `
+        <div>
+          <label>Descripción</label>
+          <input type="text" id="${id}_nombre" placeholder="Ej: Préstamo banco">
+        </div>
+        <div>
+          <label>Monto (USD)</label>
+          <input type="number" id="${id}_monto" placeholder="Agrega el monto de la deuda">
+        </div>
+        <div>
+          <label>Interés % anual</label>
+          <input type="number" id="${id}_int" placeholder="Agrega el interés anual">
+        </div>`
+    },
+    ingreso: {
+      cls: 'cols-2',
+      html: `
+        <div>
+          <label>Fuente</label>
+          <input type="text" id="${id}_nombre" placeholder="Ej: Renta de local">
+        </div>
+        <div>
+          <label>Ingreso mensual (USD)</label>
+          <input type="number" id="${id}_monto" placeholder="Agrega el ingreso mensual">
+        </div>`
+    },
+    cd: {
+      cls: 'cols-3',
+      html: `
+        <div>
+          <label>Descripción</label>
+          <input type="text" id="${id}_nombre" placeholder="Ej: CD Banco XYZ">
+        </div>
+        <div>
+          <label>Capital (USD)</label>
+          <input type="number" id="${id}_capital" placeholder="Agrega el capital del CD">
+        </div>
+        <div>
+          <label>Tasa % anual</label>
+          <input type="number" id="${id}_tasa" placeholder="Agrega la tasa anual">
+        </div>`
+    }
+  };
+
+  const cfg = configs[type];
+  row.classList.add(cfg.cls);
+  row.innerHTML = cfg.html + `<button class="btn-remove" onclick="removeRow('row-${id}')" title="Eliminar">✕</button>`;
+  list.appendChild(row);
+}
+
+function removeRow(rowId) {
+  const el = document.getElementById(rowId);
+  if (el) el.remove();
+}
+
+function getRows(listId, type) {
+  const list = document.getElementById(listId);
+  const rows = list.querySelectorAll('.dyn-row');
+  const result = [];
+  rows.forEach(row => {
+    const id = row.id.replace('row-', '');
+    const obj = { id };
+    const fields = ['nombre','valor','monto','int','capital','tasa'];
+    fields.forEach(f => {
+      const el = document.getElementById(id + '_' + f);
+      if (el) obj[f] = el.type === 'number' ? (parseFloat(el.value) || 0) : el.value;
+    });
+    result.push(obj);
+  });
+  return result;
+}
+
+/* ═══════════════════════════════════════
+   FRASES
+═══════════════════════════════════════ */
+const quotes = [
+  { text: "No ahorres lo que queda después de gastar; gasta lo que queda después de ahorrar.", author: "— Warren Buffett" },
+  { text: "La inversión en conocimiento paga el mejor interés.", author: "— Benjamin Franklin" },
+  { text: "El dinero es un buen sirviente, pero un pésimo amo.", author: "— Francis Bacon" },
+  { text: "No es cuánto dinero ganas, sino cuánto dinero conservas.", author: "— Robert Kiyosaki" },
+  { text: "La riqueza no es tener grandes posesiones, sino tener pocas necesidades.", author: "— Epicteto" },
+  { text: "El secreto de las finanzas es simple: gastar menos de lo que ganas e invertir la diferencia.", author: "— Thomas J. Stanley" },
+  { text: "El mejor momento para plantar un árbol fue hace 20 años. El segundo mejor momento es ahora.", author: "— Proverbio chino" },
+  { text: "Compound interest is the eighth wonder of the world. He who understands it, earns it.", author: "— Albert Einstein" },
+  { text: "La libertad financiera no es un número en tu cuenta bancaria; es un estilo de vida que diseñas.", author: "— RichTech" },
+  { text: "Diversificar no es desconfiar de tus inversiones; es respetar la incertidumbre.", author: "— RichTech" },
+  { text: "Tu mayor activo no es tu casa ni tu auto — eres tú y tu capacidad de generar ingresos.", author: "— RichTech" },
+  { text: "Un presupuesto no te limita; te da permiso de gastar sin culpa.", author: "— Dave Ramsey" }
+];
+
+function showRandomQuote() {
+  const q = quotes[Math.floor(Math.random() * quotes.length)];
+  document.getElementById('quote-text').textContent = q.text;
+  document.getElementById('quote-author').textContent = q.author;
+}
+
+/* ═══════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════ */
+const fmt   = n => '$' + Math.abs(Math.round(n)).toLocaleString('en-US') + ' USD';
+const fmtK  = v => v >= 1e6 ? '$'+(v/1e6).toFixed(2)+'M' : v >= 1e3 ? '$'+(v/1e3).toFixed(0)+'k' : '$'+v;
+let chart;
+
+/* ═══════════════════════════════════════
+   CALCULAR
+═══════════════════════════════════════ */
+function calcular() {
+
+  // — Activos —
+  const efectivo    = parseFloat(document.getElementById('activos').value)    || 0;
+  const inv_inicial = parseFloat(document.getElementById('inv_inicial').value)|| 0;
+  const propiedades = getRows('list-propiedades','prop');
+  const negocios    = getRows('list-negocios','neg');
+  const totalProp   = propiedades.reduce((s,r) => s + (r.valor||0), 0);
+  const totalNeg    = negocios.reduce((s,r)    => s + (r.valor||0), 0);
+  const activosTotal = efectivo + totalProp + totalNeg;
+
+  // — Deudas —
+  const deudas = getRows('list-deudas','deuda');
+  const totalDeuda = deudas.reduce((s,r) => s + r.monto, 0);
+  const tasaDeudaPromedio = totalDeuda > 0
+    ? deudas.reduce((s,r) => s + r.int * r.monto, 0) / totalDeuda
+    : 0;
+
+  // — Flujo —
+  const salario       = parseFloat(document.getElementById('salario').value) || 0;
+  const gastos        = parseFloat(document.getElementById('gastos').value)  || 0;
+  const otrosIngresos = getRows('list-otros-ingresos','ingreso');
+  const totalOtros    = otrosIngresos.reduce((s,r) => s + r.monto, 0);
+  const ingresosTotal = salario + totalOtros;
+  const flujoLibre    = ingresosTotal - gastos;
+
+  // — Estrategia Bolsa —
+  const inv_mensual = parseFloat(document.getElementById('inv_mensual').value) || 0;
+  const rendPct     = parseFloat(document.getElementById('rendimiento').value) || 8;
+  const r_bolsa     = rendPct / 100 / 12;
+
+  // — CDs —
+  const cds = getRows('list-cds','cd');
+
+  // — Resumen hoy —
+  const patrimonioNeto = activosTotal - totalDeuda;
+  document.getElementById('s_activos_total').textContent = fmt(activosTotal);
+  document.getElementById('s_deudas_total').textContent  = fmt(totalDeuda);
+  document.getElementById('s_neto').textContent          = fmt(patrimonioNeto);
+  document.getElementById('s_flujo').textContent         = fmt(flujoLibre);
+  document.getElementById('s_ingresos').textContent      = fmt(ingresosTotal);
+  document.getElementById('s_emergencia').textContent    = fmt(gastos * 6);
+  document.getElementById('s_tasa_deuda').textContent    = tasaDeudaPromedio.toFixed(1) + '%';
+
+  // — Proyección 22 años —
+  const MESES = 264;
+  let balBolsa = inv_inicial;
+  const dataBolsa = [], dataCDs = [], dataInf = [], labels = [];
+
+  // CD inicial: suma de todos los capitales
+  let balCD = cds.reduce((s,c) => s + (c.capital||0), 0);
+
+  for (let i = 1; i <= MESES; i++) {
+    // Bolsa: aportación mensual + interés compuesto
+    balBolsa = (balBolsa + inv_mensual) * (1 + r_bolsa);
+
+    // CDs: cada CD crece con su propia tasa mensual (sin aportaciones adicionales)
+    balCD = cds.reduce((s, c) => {
+      const r_cd = (c.tasa || 0) / 100 / 12;
+      // Recalcular desde capital inicial
+      return s + (c.capital || 0) * Math.pow(1 + r_cd, i);
+    }, 0);
+
+    if (i % 12 === 0) {
+      const yr = i / 12;
+      const infVal = efectivo * Math.pow(0.97, yr);
+      dataBolsa.push(+balBolsa.toFixed(0));
+      dataCDs.push(+balCD.toFixed(0));
+      dataInf.push(+infVal.toFixed(0));
+      labels.push('Año ' + yr);
+    }
+  }
+
+  const finalInf = efectivo * Math.pow(0.97, 22);
+  const totalPort = balBolsa + balCD;
+
+  document.getElementById('p_bolsa_desc').textContent = `$${inv_mensual.toLocaleString()}/mes · ${rendPct}% anual`;
+  document.getElementById('p_bolsa').textContent      = fmt(balBolsa);
+  document.getElementById('p_cd_desc').textContent    = cds.length ? cds.map(c=>`${c.nombre||'CD'} ${c.tasa}%`).join(' · ') : 'Sin CDs agregados';
+  document.getElementById('p_cd').textContent         = fmt(balCD);
+  document.getElementById('p_inflacion').textContent  = fmt(finalInf);
+  document.getElementById('p_total').textContent      = fmt(totalPort);
+
+  // — Show results —
+  const cont = document.getElementById('res_container');
+  cont.style.display = 'block';
+  cont.style.animation = 'none';
+  void cont.offsetWidth;
+  cont.style.animation = 'fadeUp 0.5s ease both';
+  cont.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // — Frase —
+  showRandomQuote();
+
+  // — Chart —
+  if (chart) chart.destroy();
+  const ctx = document.getElementById('myChart').getContext('2d');
+
+  const gBolsa = ctx.createLinearGradient(0, 0, 0, 320);
+  gBolsa.addColorStop(0, 'rgba(26,107,74,0.2)');
+  gBolsa.addColorStop(1, 'rgba(26,107,74,0)');
+
+  const gCD = ctx.createLinearGradient(0, 0, 0, 320);
+  gCD.addColorStop(0, 'rgba(26,74,138,0.15)');
+  gCD.addColorStop(1, 'rgba(26,74,138,0)');
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Bolsa (' + rendPct + '% anual)',
+          data: dataBolsa,
+          borderColor: '#1a6b4a', borderWidth: 2.5,
+          backgroundColor: gBolsa, fill: true,
+          tension: 0.4, pointRadius: 2,
+          pointBackgroundColor: '#1a6b4a',
+          pointBorderColor: '#fff', pointBorderWidth: 2
+        },
+        {
+          label: 'CDs / Alto rendimiento',
+          data: dataCDs,
+          borderColor: '#1a4a8a', borderWidth: 2,
+          backgroundColor: gCD, fill: true,
+          tension: 0.4, pointRadius: 2,
+          pointBackgroundColor: '#1a4a8a',
+          pointBorderColor: '#fff', pointBorderWidth: 2
+        },
+        {
+          label: 'Efectivo (−3% inflación)',
+          data: dataInf,
+          borderColor: '#aaa', borderWidth: 1.5,
+          backgroundColor: 'transparent', fill: false,
+          tension: 0.4, pointRadius: 0,
+          borderDash: [5, 4]
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          display: true,
+          labels: { font: { family: 'DM Sans', size: 11 }, color: '#7a756e', boxWidth: 12 }
+        },
+        tooltip: {
+          backgroundColor: '#0d1117',
+          titleColor: '#c9a84c',
+          bodyColor: 'rgba(255,255,255,0.8)',
+          padding: 12, cornerRadius: 8,
+          callbacks: { label: c => ' ' + c.dataset.label + ': $' + c.parsed.y.toLocaleString('en-US') + ' USD' }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.04)' },
+          ticks: { font: { family: 'DM Sans', size: 10 }, color: '#7a756e' }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(0,0,0,0.04)' },
+          ticks: {
+            font: { family: 'DM Sans', size: 10 }, color: '#7a756e',
+            callback: v => fmtK(v)
+          }
+        }
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>
